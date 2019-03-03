@@ -1,3 +1,17 @@
+This is my personal fork of sxiv. It adds/changes the following:
+
+- GIFs are played automatically. The functionality of -a is reversed.
+- Add functionalities to sort the file list inside the program
+    - add program arguments -Of and -Od to sort the files by name or date
+    - with -Ofr or -Odr, the ordering is reversed
+    - add keys Ctrl+f and Ctrl+d to sort the files inside the program
+    - the key Ctrl+r reverses the ordering
+    - when sorting by file name, natural sort is applied, that is, p9.jpg comes before p10.jpg
+
+Below comes the original Readme:
+
+-----
+
 ![sxiv](http://muennich.github.com/sxiv/img/logo.png "sxiv")
 
 **Simple X Image Viewer**

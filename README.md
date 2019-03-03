@@ -8,6 +8,7 @@ This is my personal fork of sxiv. It adds/changes the following:
     - the key Ctrl+r reverses the ordering
     - when sorting by file name, natural sort is applied, that is, p9.jpg comes before p10.jpg
 - The z key jumps to a random image in the list.
+- Change the w key so that it toggles between original image size and fit-to-window.
 
 Below comes the original Readme:
 

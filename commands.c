@@ -441,6 +441,19 @@ bool ci_fit_to_win(arg_t sm)
 	return img_fit_win(&img, sm);
 }
 
+bool ci_toggle_size(arg_t a)
+{
+	if (mode == MODE_IMAGE) {
+		if (fabs(img.zoom - 1.0) < 0.001) {
+			return ci_fit_to_win((arg_t) SCALE_FIT);
+		} else {
+			return ci_set_zoom((arg_t) 100);
+		}
+	}
+
+	return true;
+}
+
 bool ci_rotate(arg_t degree)
 {
 	img_rotate(&img, degree);

@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <ctype.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 
@@ -831,9 +832,89 @@ void setup_signal(int sig, void (*handler)(int sig))
 		error(EXIT_FAILURE, errno, "signal %d", sig);
 }
 
-int filename_cmp(const void *a, const void *b)
+int filename_nat_cmp(const void* a, const void* b)
 {
-	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
+    const char* string_a = ((fileinfo_t*) a)->name;
+    const char* string_b = ((fileinfo_t*) b)->name;
+
+    int idx_a = 0;
+    int idx_b = 0;
+
+    while(true) {
+        const char current_char_a = string_a[idx_a];
+        const char current_char_b = string_b[idx_b];
+
+        if(current_char_a == '\0') {
+            if(current_char_b == '\0') {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else if(current_char_b == '\0') {
+            return 1;
+        }
+
+        if(isdigit(current_char_a) && isdigit(current_char_a)) {
+            /* We are at the start of chunks of digits both in string_a and in string_b. If these
+             * chunks are of different length, we look at the "additional" digits the longer chunk
+             * has at the start. If one of these digits is not a 0, the string with this chunk is
+             * considered the larger one, otherwise we ignore the zeros. The rest of the digit
+             * chunks can be compared alphabetically. */
+            int length_digit_chunk_a = 1;
+            int length_digit_chunk_b = 1;
+            while(isdigit(string_a[idx_a + length_digit_chunk_a])) {
+                length_digit_chunk_a++;
+            }
+            while(isdigit(string_b[idx_b + length_digit_chunk_b])) {
+                length_digit_chunk_b++;
+            }
+
+            int length_of_shorter_chunk = length_digit_chunk_a;
+
+            if(length_digit_chunk_a > length_digit_chunk_b) {
+                const int end_of_additional_digits = idx_a + length_digit_chunk_a -
+                    length_digit_chunk_b;
+                while(idx_a < end_of_additional_digits) {
+                    if(string_a[idx_a] != '0') {
+                        return 1;
+                    }
+                    ++idx_a;
+                }
+                length_of_shorter_chunk = length_digit_chunk_b;
+            } else if(length_digit_chunk_a < length_digit_chunk_b) {
+                const int end_of_additional_digits = idx_b + length_digit_chunk_b -
+                    length_digit_chunk_a;
+                while(idx_b < end_of_additional_digits) {
+                    if(string_b[idx_b] != '0') {
+                        return -1;
+                    }
+                    ++idx_b;
+                }
+            }
+
+            while(length_of_shorter_chunk > 0) {
+                if(string_a[idx_a] > string_b[idx_b]) {
+                    return 1;
+                } else if(string_a[idx_a] < string_b[idx_b]) {
+                    return -1;
+                }
+                idx_a++;
+                idx_b++;
+                length_of_shorter_chunk--;
+            }
+
+            continue;
+        }
+
+        if(current_char_a > current_char_b) {
+            return 1;
+        } else if(current_char_a < current_char_b) {
+            return -1;
+        }
+
+        idx_a++;
+        idx_b++;
+    }
 }
 
 int filedate_cmp(const void *a, const void *b)
@@ -861,7 +942,7 @@ void sort_filelist()
 	path_of_fileidx = files[fileidx].path;
 
 	if(fileorder.order_by == order_by_name) {
-		qsort(files, filecnt, sizeof (fileinfo_t), filename_cmp);
+		qsort(files, filecnt, sizeof (fileinfo_t), filename_nat_cmp);
 	} else if(fileorder.order_by == order_by_date) {
 		qsort(files, filecnt, sizeof (fileinfo_t), filedate_cmp);
 	} else {

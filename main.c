@@ -1103,6 +1103,8 @@ int main(int argc, char **argv)
 
 	set_timeout(redraw, 25, false);
 
+	srand(time(0));
+
 	run();
 
 	return 0;

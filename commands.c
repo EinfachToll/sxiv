@@ -445,7 +445,7 @@ bool ci_toggle_size(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (fabs(img.zoom - 1.0) < 0.001) {
-			return ci_fit_to_win((arg_t) SCALE_FIT);
+			return ci_fit_to_win((arg_t) SCALE_DOWN);
 		} else {
 			return ci_set_zoom((arg_t) 100);
 		}

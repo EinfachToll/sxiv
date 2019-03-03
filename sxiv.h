@@ -188,6 +188,16 @@ typedef struct {
 
 extern const cmd_t cmds[CMD_COUNT];
 
+typedef enum {
+	order_by_name,
+	order_by_date,
+	original_fileorder
+} order_by_t;
+
+typedef struct {
+	order_by_t order_by;
+	bool reversed;
+} fileorder_t;
 
 /* image.c */
 
@@ -264,6 +274,7 @@ struct opt {
 	bool recursive;
 	int filecnt;
 	int startnum;
+	fileorder_t fileorder;
 
 	/* image: */
 	scalemode_t scalemode;

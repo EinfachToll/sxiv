@@ -62,6 +62,8 @@ int markidx;
 int prefix;
 bool extprefix;
 
+fileorder_t fileorder;
+
 bool resized = false;
 
 typedef struct {
@@ -351,6 +353,8 @@ void update_info(void)
 {
 	unsigned int i, fn, fw;
 	const char * mark;
+	const char * order_by;
+	const char * order_reversed;
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
 
 	/* update bar contents */
@@ -370,6 +374,16 @@ void update_info(void)
 		bar_put(r, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 	} else {
 		bar_put(r, "%s", mark);
+		if(fileorder.order_by == order_by_name) {
+			order_by = "Name ";
+		} else if(fileorder.order_by == order_by_date) {
+			order_by = "Datum ";
+		} else {
+			order_by = "";
+		}
+		bar_put(r, "%s", order_by);
+		order_reversed = fileorder.reversed ? "R " : "";
+		bar_put(r, "%s", order_reversed);
 		if (img.ss.on) {
 			if (img.ss.delay % 10 != 0)
 				bar_put(r, "%2.1fs" BAR_SEP, (float)img.ss.delay / 10);
@@ -817,6 +831,63 @@ void setup_signal(int sig, void (*handler)(int sig))
 		error(EXIT_FAILURE, errno, "signal %d", sig);
 }
 
+int filename_cmp(const void *a, const void *b)
+{
+	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
+}
+
+int filedate_cmp(const void *a, const void *b)
+{
+	struct stat file_stat_a;
+	struct stat file_stat_b;
+	stat(((fileinfo_t*) a)->path, &file_stat_a);
+	stat(((fileinfo_t*) b)->path, &file_stat_b);
+
+	if(file_stat_a.st_mtime < file_stat_b.st_mtime) {
+		return -1;
+	} else if(file_stat_a.st_mtime > file_stat_b.st_mtime) {
+		return 1;
+	};
+
+	return 0;
+}
+
+void sort_filelist()
+{
+	int index_left, index_right;
+	fileinfo_t h;
+	const char* path_of_fileidx;
+
+	path_of_fileidx = files[fileidx].path;
+
+	if(fileorder.order_by == order_by_name) {
+		qsort(files, filecnt, sizeof (fileinfo_t), filename_cmp);
+	} else if(fileorder.order_by == order_by_date) {
+		qsort(files, filecnt, sizeof (fileinfo_t), filedate_cmp);
+	} else {
+		return;
+	}
+
+	if(fileorder.reversed) {
+		index_left = 0;
+		index_right = filecnt - 1;
+		while(index_left < index_right) {
+			h = files[index_left];
+			files[index_left] = files[index_right];
+			files[index_right] = h;
+			++index_left;
+			--index_right;
+		}
+	}
+
+	for(index_left = 0; index_left < filecnt; ++index_left) {
+		if(files[index_left].path == path_of_fileidx) {
+			fileidx = index_left;
+			break;
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int i, start;
@@ -894,6 +965,12 @@ int main(int argc, char **argv)
 		error(EXIT_FAILURE, 0, "No valid image file given, aborting");
 
 	filecnt = fileidx;
+
+	fileorder.order_by = options->fileorder.order_by;
+	fileorder.reversed = options->fileorder.reversed;
+
+	sort_filelist();
+
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
 
 	for (i = 0; i < ARRLEN(buttons); i++) {

@@ -37,6 +37,7 @@ void animate(void);
 void slideshow(void);
 void set_timeout(timeout_f, int, bool);
 void reset_timeout(timeout_f);
+void sort_filelist(void);
 
 extern appmode_t mode;
 extern img_t img;
@@ -51,6 +52,8 @@ extern int markidx;
 
 extern int prefix;
 extern bool extprefix;
+
+extern fileorder_t fileorder;
 
 bool cg_quit(arg_t _)
 {
@@ -268,6 +271,47 @@ bool cg_change_gamma(arg_t d)
 	} else {
 		return false;
 	}
+}
+
+bool cg_order_by_name(arg_t _)
+{
+	fileorder.order_by = order_by_name;
+	sort_filelist();
+	if (mode == MODE_IMAGE) {
+		img.dirty = true;
+	} else {
+		tns.dirty = true;
+	}
+	return true;
+}
+
+bool cg_order_by_date(arg_t _)
+{
+	fileorder.order_by = order_by_date;
+	sort_filelist();
+	if (mode == MODE_IMAGE) {
+		img.dirty = true;
+	} else {
+		tns.dirty = true;
+	}
+	return true;
+}
+
+bool cg_original_fileorder(arg_t _)
+{
+	return true;
+}
+
+bool cg_reverse_fileorder(arg_t _)
+{
+	fileorder.reversed = !fileorder.reversed;
+	sort_filelist();
+	if (mode == MODE_IMAGE) {
+		img.dirty = true;
+	} else {
+		tns.dirty = true;
+	}
+	return true;
 }
 
 bool ci_navigate(arg_t n)

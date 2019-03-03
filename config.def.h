@@ -96,6 +96,10 @@ static const keymap_t keys[] = {
 	{ 0,            XK_braceleft,     g_change_gamma,       -1 },
 	{ 0,            XK_braceright,    g_change_gamma,       +1 },
 	{ ControlMask,  XK_g,             g_change_gamma,        0 },
+	{ ControlMask,  XK_f,             g_order_by_name,      None },
+	{ ControlMask,  XK_d,             g_order_by_date,      None },
+	{ ControlMask,  XK_o,             g_original_fileorder, None },
+	{ ControlMask,  XK_r,             g_reverse_fileorder,  None },
 
 	{ 0,            XK_h,             t_move_sel,           DIR_LEFT },
 	{ 0,            XK_Left,          t_move_sel,           DIR_LEFT },

@@ -3,3 +3,4 @@ config.h
 *.o
 sxiv
 version.h
+tags

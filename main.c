@@ -854,7 +854,7 @@ int filename_nat_cmp(const void* a, const void* b)
             return 1;
         }
 
-        if(isdigit(current_char_a) && isdigit(current_char_a)) {
+        if(isdigit(current_char_a) && isdigit(current_char_b)) {
             /* We are at the start of chunks of digits both in string_a and in string_b. If these
              * chunks are of different length, we look at the "additional" digits the longer chunk
              * has at the start. If one of these digits is not a 0, the string with this chunk is
